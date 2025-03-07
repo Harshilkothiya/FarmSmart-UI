@@ -1,0 +1,79 @@
+<!-- FarmSmart Frontend (HTML) -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FarmSmart</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+</head>
+
+<body class="bg-gradient-to-r from-green-200 to-blue-200 min-h-screen flex items-center justify-center">
+    <div class="max-w-3xl mx-auto py-10 bg-white rounded-lg shadow-lg p-8">
+        <h1 class="text-4xl font-bold text-center mb-8 text-green-800">FarmSmart</h1>
+        <form id="farm-form" class="space-y-6">
+            <div class="grid grid-cols-2 gap-6">
+                <div>
+                    <label for="nitrogen" class="block text-gray-700">Nitrogen (1-100 ppm):</label>
+                    <input type="number" id="nitrogen" name="nitrogen" min="1" max="100" class="w-full p-2 border rounded"  value="1">
+                </div>
+                <div>
+                    <label for="phosphorus" class="block text-gray-700">Phosphorus (1-100 ppm):</label>
+                    <input type="number" id="phosphorus" name="phosphorus" min="1" max="100" class="w-full p-2 border rounded" value="1">
+                </div>
+                <div>
+                    <label for="potassium" class="block text-gray-700">Potassium (1-100 ppm):</label>
+                    <input type="number" id="potassium" name="potassium" min="1" max="100" class="w-full p-2 border rounded" value="1">
+                </div>
+                <div>
+                    <label for="temperature" class="block text-gray-700">Temperature (0-100 °C):</label>
+                    <input type="number" step="0.1" id="temperature" name="temperature" min="0" max="100" class="w-full p-2 border rounded" value="0">
+                </div>
+                <div>
+                    <label for="humidity" class="block text-gray-700">Humidity (0-100 %):</label>
+                    <input type="number" step="0.1" id="humidity" name="humidity" min="0" max="100" class="w-full p-2 border rounded" value="0">
+                </div>
+                <div>
+                    <label for="ph" class="block text-gray-700">PH (0-14):</label>
+                    <input type="number" step="0.1" id="ph" name="ph" min="0" max="14" class="w-full p-2 border rounded" value="0">
+                </div>
+                <div>
+                    <label for="rainfall" class="block text-gray-700">Rainfall (0-3000 mm):</label>
+                    <input type="number" step="0.1" id="rainfall" name="rainfall" min="0" max="3000" class="w-full p-2 border rounded" value="0">
+                </div>
+            </div>
+            <button type="submit" class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 mt-4">Submit</button>
+        </form>
+
+        <!-- Output Box for Prediction -->
+        <div id="result-box" class="mt-6 p-4 border-2 border-green-600 rounded-lg bg-green-50 hidden">
+            <h2 class="text-2xl font-semibold text-green-800 mb-2">Prediction Result:</h2>
+            <p id="result" class="text-lg text-green-700"></p>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('farm-form');
+        form.addEventListener('submit', async (e) => {
+            console.log("request aavi");
+            e.preventDefault();
+            const formData = new FormData(form);
+            const data = {};
+            formData.forEach((value, key) => { data[key] = value; });
+
+            const response = await fetch('http://127.0.0.1:5000/api/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+            document.getElementById('result').innerText = result.prediction;
+            const resultBox = document.getElementById('result-box');
+            resultBox.classList.remove('hidden');  // Show the result box
+        });
+    </script>
+</body>
+
+</html>
