@@ -13,6 +13,11 @@ def load_model():
     with open("model.pkl", "rb") as f:
         model = joblib.load(f)
 
+@app.route('/', methods=['GET'])
+def hello():
+    return jsonify({'message': 'Welcome to the Crop Prediction API!'})
+
+
 @app.route('/api/predict', methods=['POST'])
 def predict():
     try:
