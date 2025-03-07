@@ -6,12 +6,7 @@ from flask_cors import CORS  # Import CORS
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
-model = None
-
-def load_model():
-    global model
-    with open("model.pkl", "rb") as f:
-        model = joblib.load(f)
+model = joblib.load(open("model.pkl", "rb"))
 
 @app.route('/', methods=['GET'])
 def hello():
@@ -38,7 +33,7 @@ def predict():
         prediction = model.predict(features)[0]
 
         # Send response
-        print("this is ", prediction, )
+        # print("this is ", prediction, )
         return jsonify({'prediction': prediction})
 
     except Exception as e:
@@ -46,5 +41,4 @@ def predict():
         return jsonify({'error': str(e)})
 
 if __name__ == '__main__':
-    load_model()
     app.run()
