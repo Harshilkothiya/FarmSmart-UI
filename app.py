@@ -4,7 +4,7 @@ import numpy as np
 from flask_cors import CORS  # Import CORS
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app, resources={r"/*": {"origins": "*"}})  # Allow all origins
 
 model = joblib.load(open("./model.pkl", "rb"))
 
