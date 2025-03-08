@@ -1,4 +1,3 @@
-<!-- FarmSmart Frontend (HTML) -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -16,43 +15,43 @@
             <div class="grid grid-cols-2 gap-6">
                 <div>
                     <label for="nitrogen" class="block text-gray-700">Nitrogen (1-100 ppm):</label>
-                    <input type="number" id="nitrogen" name="nitrogen" min="1" max="100"
-                        class="w-full p-2 border rounded" value="1">
+                    <input type="number" id="nitrogen" name="nitrogen" min="1" max="100" class="w-full p-2 border rounded" value="1">
                 </div>
                 <div>
                     <label for="phosphorus" class="block text-gray-700">Phosphorus (1-100 ppm):</label>
-                    <input type="number" id="phosphorus" name="phosphorus" min="1" max="100"
-                        class="w-full p-2 border rounded" value="1">
+                    <input type="number" id="phosphorus" name="phosphorus" min="1" max="100" class="w-full p-2 border rounded" value="1">
                 </div>
                 <div>
                     <label for="potassium" class="block text-gray-700">Potassium (1-100 ppm):</label>
-                    <input type="number" id="potassium" name="potassium" min="1" max="100"
-                        class="w-full p-2 border rounded" value="1">
+                    <input type="number" id="potassium" name="potassium" min="1" max="100" class="w-full p-2 border rounded" value="1">
                 </div>
                 <div>
                     <label for="temperature" class="block text-gray-700">Temperature (0-100 °C):</label>
-                    <input type="number" step="0.1" id="temperature" name="temperature" min="0" max="100"
-                        class="w-full p-2 border rounded" value="0">
+                    <input type="number" step="0.1" id="temperature" name="temperature" min="0" max="100" class="w-full p-2 border rounded" value="0">
                 </div>
                 <div>
                     <label for="humidity" class="block text-gray-700">Humidity (0-100 %):</label>
-                    <input type="number" step="0.1" id="humidity" name="humidity" min="0" max="100"
-                        class="w-full p-2 border rounded" value="0">
+                    <input type="number" step="0.1" id="humidity" name="humidity" min="0" max="100" class="w-full p-2 border rounded" value="0">
                 </div>
                 <div>
                     <label for="ph" class="block text-gray-700">PH (0-14):</label>
-                    <input type="number" step="0.1" id="ph" name="ph" min="0" max="14" class="w-full p-2 border rounded"
-                        value="0">
+                    <input type="number" step="0.1" id="ph" name="ph" min="0" max="14" class="w-full p-2 border rounded" value="0">
                 </div>
                 <div>
                     <label for="rainfall" class="block text-gray-700">Rainfall (0-3000 mm):</label>
-                    <input type="number" step="0.1" id="rainfall" name="rainfall" min="0" max="3000"
-                        class="w-full p-2 border rounded" value="0">
+                    <input type="number" step="0.1" id="rainfall" name="rainfall" min="0" max="3000" class="w-full p-2 border rounded" value="0">
                 </div>
             </div>
-            <button type="submit"
-                class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 mt-4">Submit</button>
+            <button type="submit" id="submit-btn" class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 mt-4">Submit</button>
         </form>
+
+        <!-- Loading Indicator -->
+        <div id="loading" class="mt-6 p-4 text-center hidden">
+            <div class="flex items-center justify-center space-x-2">
+                <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-green-600"></div>
+                <p class="text-green-800 text-lg">Processing...</p>
+            </div>
+        </div>
 
         <!-- Output Box for Prediction -->
         <div id="result-box" class="mt-6 p-4 border-2 border-green-600 rounded-lg bg-green-50 hidden">
@@ -63,25 +62,39 @@
 
     <script>
         const form = document.getElementById('farm-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const loadingIndicator = document.getElementById('loading');
+        const resultBox = document.getElementById('result-box');
+        const resultText = document.getElementById('result');
+
         form.addEventListener('submit', async (e) => {
-            console.log("request aavi");
             e.preventDefault();
+            submitBtn.disabled = true; // Disable the submit button
+            loadingIndicator.classList.remove('hidden'); // Show loading indicator
+            resultBox.classList.add('hidden'); // Hide result box during processing
+
             const formData = new FormData(form);
             const data = {};
             formData.forEach((value, key) => { data[key] = value; });
+            console.log("request start")
+            try {
+                const response = await fetch('https://framsmartpy.onrender.com/api/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
 
-            const response = await fetch('https://framsmartpy.onrender.com/api/predict', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
-                mode: 'cors'  // Add this line
-            });
-
-            const result = await response.json();
-            console.log(data, result)
-            document.getElementById('result').innerText = result.prediction;
-            const resultBox = document.getElementById('result-box');
-            resultBox.classList.remove('hidden');  // Show the result box
+                const result = await response.json();
+                console.log(result, data)
+                resultText.innerText = result.prediction;
+                resultBox.classList.remove('hidden'); // Show the result box
+            } catch (error) {
+                resultText.innerText = "Error occurred while fetching prediction.";
+                resultBox.classList.remove('hidden');
+            } finally {
+                loadingIndicator.classList.add('hidden'); // Hide loading indicator
+                submitBtn.disabled = false; // Enable the submit button
+            }
         });
     </script>
 </body>
